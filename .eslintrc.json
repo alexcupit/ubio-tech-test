@@ -1,0 +1,4 @@
+{
+  "extends": ["@nodescript/eslint-config"],
+  "ignorePatterns": ["out"]
+}
