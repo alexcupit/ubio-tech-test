@@ -3,7 +3,8 @@ import { MongoDb } from '@ubio/framework/modules/mongodb';
 import { dep } from 'mesh-ioc';
 
 import { AppInstanceRepo } from '../../repositories/AppInstanceRepo.js';
-import { AppInstance } from '../../schema/instance.js';
+import { AppInstance } from '../../schema/AppInstance.js';
+import { GroupSummaryResponse } from '../../schema/GroupSummary.js';
 
 export class GroupRouter extends Router {
     @dep()

@@ -2,7 +2,7 @@ import { MongoDb } from '@ubio/framework/modules/mongodb';
 import { dep } from 'mesh-ioc';
 import { ReturnDocument } from 'mongodb';
 
-import { AppInstance } from '../schema/instance.js';
+import { AppInstance } from '../schema/AppInstance.js';
 
 export class AppInstanceRepo {
     @dep() private mongoDb!: MongoDb;
