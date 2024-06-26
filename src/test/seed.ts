@@ -11,7 +11,9 @@ export class TestSeed {
     }
 
     async deleteAll() {
-        if (process.env.NODE_ENV !== 'test') return;
+        if (process.env.NODE_ENV !== 'test') {
+            return;
+        }
         await this.collection.deleteMany();
     }
 }

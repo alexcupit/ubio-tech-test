@@ -10,7 +10,7 @@ import { MongoDb } from '@ubio/framework/modules/mongodb';
 import { dep } from 'mesh-ioc';
 
 import { AppInstanceRepo } from '../../repositories/AppInstanceRepo.js';
-import { AppInstance } from '../../schema/AppInstance.js';
+import { AllAppInstances, AppInstance } from '../../schema/AppInstance.js';
 import { GroupSummaryResponse } from '../../schema/GroupSummary.js';
 
 export class GroupRouter extends Router {
@@ -91,5 +91,26 @@ export class GroupRouter extends Router {
             return;
         }
         return GroupSummaryResponse.decode(allGroups);
+    }
+
+    @Get({
+        path: '/{group}',
+        responses: { 200: { schema: AllAppInstances.schema } },
+    })
+    async getAllGroupInstances(
+        @PathParam('group', { schema: { type: 'string' } })
+        group: string
+    ) {
+        const allInstances = await this.appInstanceRepo.findMany({ group });
+
+        if (!allInstances.length) {
+            this.ctx.status = 404;
+            this.ctx.body = {
+                message: `no app instances found for group: ${group}`,
+            };
+            return;
+        }
+
+        return AllAppInstances.decode(allInstances);
     }
 }

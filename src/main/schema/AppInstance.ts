@@ -26,3 +26,10 @@ export const AppInstance = new Schema<AppInstance>({
         required: ['id', 'group', 'createdAt', 'updatedAt'],
     },
 });
+
+export const AllAppInstances = new Schema<AppInstance[]>({
+    schema: {
+        type: 'array',
+        items: AppInstance.schema,
+    },
+});

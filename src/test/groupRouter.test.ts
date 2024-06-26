@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto';
 import supertest from 'supertest';
 
 import { App } from '../main/app.js';
+import { AppInstance } from '../main/schema/AppInstance.js';
 import { GroupSummary } from '../main/schema/GroupSummary.js';
 import { TestSeed } from './seed.js';
 
@@ -189,7 +190,7 @@ describe('DELETE /:group/:id', () => {
     // TODO: check all instances before and after a deletion once new endpoint created
 });
 
-describe.only('GET /', () => {
+describe('GET /', () => {
     it('200: should return a 200 if there are groups registered', async () => {
         const request = supertest(app.httpServer.callback());
 
@@ -245,3 +246,50 @@ describe.only('GET /', () => {
 
     // TODO: 404 if db query returns an invalid schema
 });
+
+describe('GET /:group', () => {
+    it('200: should return a 200 status if there are instances of the given group in the database', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        await request
+            .post(`/particle-detector/${randomUUID()}`)
+            .send({ meta: {} });
+
+        await request.get('/particle-detector').expect(200);
+    });
+
+    it('404: should return a 404 if there are no instances of the given group in the database', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const { body } = await request.get('/particle-detector').expect(404);
+
+        body.message.should.include(
+            'no app instances found for group: particle-detector'
+        );
+    });
+
+    it('200: should return an array with all of the app instances of the given group', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const testUUID = randomUUID();
+        const testUUID2 = randomUUID();
+
+        await request
+            .post(`/particle-detector/${testUUID}`)
+            .send({ meta: {} })
+            .expect(201);
+        await request
+            .post(`/particle-detector/${testUUID2}`)
+            .send({ meta: {} })
+            .expect(201);
+
+        const { body } = await request.get('/particle-detector').expect(200);
+
+        body.length.should.equal(2);
+        body.forEach((appInstance: AppInstance) => {
+            appInstance.group.should.equal('particle-detector');
+        });
+    });
+});
+
+// TODO: should return a 404 for any unknown paths

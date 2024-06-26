@@ -67,4 +67,10 @@ export class AppInstanceRepo {
             ])
             .toArray();
     }
+
+    async findMany({ group }: { group: string }) {
+        return await this.collection
+            .find({ group }, { projection: { _id: false } })
+            .toArray();
+    }
 }
