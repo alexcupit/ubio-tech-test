@@ -30,7 +30,7 @@ export class AppInstanceRepo {
         const options = {
             upsert: true,
             returnDocument: ReturnDocument.AFTER,
-            projection: { _id: 0 },
+            projection: { _id: false },
         };
 
         return (await this.collection.findOneAndUpdate(
@@ -42,5 +42,29 @@ export class AppInstanceRepo {
 
     async deleteOne({ id, group }: { id: string; group: string }) {
         return await this.collection.deleteOne({ id, group });
+    }
+
+    async aggregate() {
+        return await this.collection
+            .aggregate([
+                {
+                    $group: {
+                        _id: '$group',
+                        instances: { $sum: 1 },
+                        createdAt: { $min: '$createdAt' },
+                        lastUpdatedAt: { $max: '$updatedAt' },
+                    },
+                },
+                {
+                    $project: {
+                        _id: false,
+                        group: '$_id',
+                        instances: true,
+                        createdAt: true,
+                        lastUpdatedAt: true,
+                    },
+                },
+            ])
+            .toArray();
     }
 }

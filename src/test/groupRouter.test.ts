@@ -3,11 +3,19 @@ import { randomUUID } from 'crypto';
 import supertest from 'supertest';
 
 import { App } from '../main/app.js';
+import { GroupSummary } from '../main/schema/GroupSummary.js';
+import { TestSeed } from './seed.js';
 
 const app = new App();
+
 should();
 
-beforeEach(async () => await app.start());
+beforeEach(async () => {
+    await app.start();
+    app.mesh.service(TestSeed);
+    const seed = app.mesh.resolve(TestSeed);
+    await seed.deleteAll();
+});
 afterEach(async () => await app.stop());
 
 describe('POST /:group/:id', () => {
@@ -179,4 +187,61 @@ describe('DELETE /:group/:id', () => {
     });
 
     // TODO: check all instances before and after a deletion once new endpoint created
+});
+
+describe.only('GET /', () => {
+    it('200: should return a 200 if there are groups registered', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const testUUID = randomUUID();
+
+        await request
+            .post(`/particle-detector/${testUUID}`)
+            .send({ meta: {} })
+            .expect(201);
+
+        await request.get('/').expect(200);
+    });
+
+    it('404: should return a 404 if there are no groups registered', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const { body } = await request.get('/').expect(404);
+        body.message.should.include('no app instances found');
+    });
+
+    it('200: should return an array with the number of instances of each group, the createdAt date of the first instance and the lastUpdatedAt date of the last instance', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        // create first instance
+        const testUUID = randomUUID();
+        const {
+            body: { createdAt },
+        } = await request
+            .post(`/particle-detector/${testUUID}`)
+            .send({ meta: {} })
+            .expect(201);
+
+        // create second instance
+        const testUUID2 = randomUUID();
+        const {
+            body: { updatedAt },
+        } = await request
+            .post(`/particle-detector/${testUUID2}`)
+            .send({ meta: {} })
+            .expect(201);
+
+        const { body } = await request.get('/').expect(200);
+
+        const particleDetectorSummary: GroupSummary = body.find(
+            (groupSummary: GroupSummary) =>
+                groupSummary.group === 'particle-detector'
+        );
+
+        particleDetectorSummary.instances.should.equal(2);
+        particleDetectorSummary.createdAt.should.equal(createdAt);
+        particleDetectorSummary.lastUpdatedAt.should.equal(updatedAt);
+    });
+
+    // TODO: 404 if db query returns an invalid schema
 });

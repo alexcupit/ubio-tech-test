@@ -1,4 +1,11 @@
-import { BodyParam, Delete, PathParam, Post, Router } from '@ubio/framework';
+import {
+    BodyParam,
+    Delete,
+    Get,
+    PathParam,
+    Post,
+    Router,
+} from '@ubio/framework';
 import { MongoDb } from '@ubio/framework/modules/mongodb';
 import { dep } from 'mesh-ioc';
 
@@ -67,5 +74,22 @@ export class GroupRouter extends Router {
         } else {
             this.ctx.status = 204;
         }
+    }
+
+    @Get({
+        path: '/',
+        responses: {
+            200: { schema: GroupSummaryResponse.schema },
+        },
+    })
+    async getAllGroups() {
+        const allGroups = await this.appInstanceRepo.aggregate();
+
+        if (!allGroups.length) {
+            this.ctx.status = 404;
+            this.ctx.body = { message: 'no app instances found' };
+            return;
+        }
+        return GroupSummaryResponse.decode(allGroups);
     }
 }
