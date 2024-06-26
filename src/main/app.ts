@@ -2,6 +2,9 @@ import { Application } from '@ubio/framework';
 import { MongoDb } from '@ubio/framework/modules/mongodb';
 import { dep } from 'mesh-ioc';
 
+import { AppInstanceRepo } from './repositories/AppInstanceRepo.js';
+import { GroupRouter } from './routes/groups/GroupRouter.js';
+
 export class App extends Application {
     // Note: application can inject global-scoped components
     @dep() mongoDb!: MongoDb;
@@ -9,19 +12,21 @@ export class App extends Application {
     override createGlobalScope() {
         const mesh = super.createGlobalScope();
         mesh.service(MongoDb);
-        // mesh.service(MyService);
-        // mesh.service(MyRepository);
+
+        mesh.service(AppInstanceRepo);
         return mesh;
     }
 
     override createHttpRequestScope() {
         const mesh = super.createHttpRequestScope();
-        // mesh.service(MyRouter);
+        mesh.service(GroupRouter);
         return mesh;
     }
 
     override async beforeStart() {
-        await this.mongoDb.client.connect();
+        // await this.mongoDb.client.connect();
+        await this.mongoDb.start();
+
         // Add other code to execute on application startup
         await this.httpServer.startServer();
     }
@@ -29,6 +34,7 @@ export class App extends Application {
     override async afterStop() {
         await this.httpServer.stopServer();
         // Add other finalization code
-        this.mongoDb.client.close();
+        await this.mongoDb.stop();
+        // this.mongoDb.client.close();
     }
 }
