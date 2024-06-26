@@ -39,3 +39,8 @@ export class AppInstanceRepo {
             options
         )) as AppInstance;
     }
+
+    async deleteOne({ id, group }: { id: string; group: string }) {
+        return await this.collection.deleteOne({ id, group });
+    }
+}

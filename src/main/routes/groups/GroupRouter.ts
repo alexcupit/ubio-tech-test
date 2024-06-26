@@ -47,4 +47,24 @@ export class GroupRouter extends Router {
 
         return AppInstance.decode(updatedAppInstance);
     }
+
+    @Delete({ path: '/{group}/{id}' })
+    async deleteGroupInstance(
+        @PathParam('group', { schema: { type: 'string' } })
+        group: string,
+        @PathParam('id', { schema: { type: 'string', format: 'uuid' } })
+        id: string
+    ) {
+        const { deletedCount } = await this.appInstanceRepo.deleteOne({
+            id,
+            group,
+        });
+
+        if (deletedCount === 0) {
+            this.ctx.status = 404;
+            this.ctx.body = { message: 'item not found in database' };
+        } else {
+            this.ctx.status = 204;
+        }
+    }
 }

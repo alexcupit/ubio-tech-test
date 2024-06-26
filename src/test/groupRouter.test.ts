@@ -124,3 +124,59 @@ describe('POST /:group/:id', () => {
     // TODO: throw an error if the db response does not match app instance schema
     // TODO: meta spreads existing meta from db
 });
+
+describe('DELETE /:group/:id', () => {
+    it('204: should return a 204 if an existing instance is successfully deleted', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const testUUID = randomUUID();
+
+        await request
+            .post(`/particle-detector/${testUUID}`)
+            .send({ meta: {} })
+            .expect(201);
+
+        await request.delete(`/particle-detector/${testUUID}`).expect(204);
+    });
+
+    it('404: should return a 404 if an non-existing instance id is requested to be deleted', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const testUUID = randomUUID();
+
+        await request
+            .post(`/particle-detector/${testUUID}`)
+            .send({ meta: {} })
+            .expect(201);
+
+        const { body } = await request
+            .delete(`/a-new-group/${testUUID}`)
+            .expect(404);
+
+        body.message.should.include('item not found in database');
+    });
+
+    it('404: should return a 404 if an non-existing instance group is requested to be deleted', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const testUUID = randomUUID();
+
+        const { body } = await request
+            .delete(`/particle-detector/${testUUID}`)
+            .expect(404);
+
+        body.message.should.include('item not found in database');
+    });
+
+    it('400: should return a 400 if the provided id is not a valid uuid', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const { body } = await request
+            .delete(`/particle-detector/123`)
+            .expect(400);
+
+        body.message.should.include('id must match format "uuid"');
+    });
+
+    // TODO: check all instances before and after a deletion once new endpoint created
+});
