@@ -10,7 +10,7 @@
         "lint": "eslint --ext=.js,.ts --cache .",
         "clean": "rm -rf out",
         "compile": "npm run clean && tsc",
-        "pretest": "npm run compile && docker run -d --name app-instance-test -p 27017:27017 mongo",
+        "pretest": "npm run compile && docker run -d --name app-instance-test -p 27017:27017 mongo mongod --setParameter ttlMonitorSleepSecs=1",
         "test": "MONGO_URL='mongodb://127.0.0.1:27017/' NODE_ENV=test mocha out/test/**/*.test.js --timeout 10000",
         "posttest": "docker stop app-instance-test && docker rm app-instance-test",
         "docs": "npm run docs:openapi && npm run docs:api",
