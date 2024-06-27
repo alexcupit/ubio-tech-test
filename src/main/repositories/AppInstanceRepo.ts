@@ -68,44 +68,46 @@ export class AppInstanceRepo {
     }
 
     async aggregate(): Promise<GroupSummary[]> {
+        // prettier-ignore
         return await this.collection
             .aggregate<GroupSummary>([
-                {
-                    $group: {
-                        _id: '$group',
-                        instances: { $sum: 1 },
-                        createdAt: { $min: '$createdAt' },
-                        lastUpdatedAt: { $max: '$updatedAt' },
-                    },
+            {
+                $group: {
+                    _id: '$group',
+                    instances: { $sum: 1 },
+                    createdAt: { $min: '$createdAt' },
+                    lastUpdatedAt: { $max: '$updatedAt' },
                 },
-                {
-                    $project: {
-                        _id: false,
-                        group: '$_id',
-                        instances: true,
-                        createdAt: { $toLong: '$createdAt' },
-                        lastUpdatedAt: { $toLong: '$lastUpdatedAt' },
-                    },
+            },
+            {
+                $project: {
+                    _id: false,
+                    group: '$_id',
+                    instances: true,
+                    createdAt: { $toLong: '$createdAt' },
+                    lastUpdatedAt: { $toLong: '$lastUpdatedAt' },
                 },
-            ])
+            },
+        ])
             .toArray();
     }
 
     async findMany({ group }: { group: string }): Promise<AppInstance[]> {
+        // prettier-ignore
         return await this.collection
             .aggregate<AppInstance>([
-                { $match: { group } },
-                {
-                    $project: {
-                        _id: false,
-                        id: true,
-                        group: true,
-                        createdAt: { $toLong: '$createdAt' },
-                        updatedAt: { $toLong: '$updatedAt' },
-                        meta: true,
-                    },
+            { $match: { group } },
+            {
+                $project: {
+                    _id: false,
+                    id: true,
+                    group: true,
+                    createdAt: { $toLong: '$createdAt' },
+                    updatedAt: { $toLong: '$updatedAt' },
+                    meta: true,
                 },
-            ])
+            },
+        ])
             .toArray();
     }
 }
