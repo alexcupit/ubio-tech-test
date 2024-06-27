@@ -8,16 +8,19 @@ import { GroupSummary } from '../main/schema/GroupSummary.js';
 import { TestSeed } from './seed.js';
 
 const app = new App();
+app.mesh.service(TestSeed);
+const seed = app.mesh.resolve(TestSeed);
 
 should();
 
 beforeEach(async () => {
     await app.start();
-    app.mesh.service(TestSeed);
-    const seed = app.mesh.resolve(TestSeed);
-    await seed.deleteAll();
 });
-afterEach(async () => await app.stop());
+
+afterEach(async () => {
+    await seed.deleteAll();
+    await app.stop();
+});
 
 describe('POST /:group/:id', () => {
     it('201: should return a 201 if a new instance is created', async () => {
@@ -289,6 +292,35 @@ describe('GET /:group', () => {
         body.forEach((appInstance: AppInstance) => {
             appInstance.group.should.equal('particle-detector');
         });
+    });
+});
+
+describe('Removing expired instances', () => {
+    it('should have an index on the collection with an expiry time set from an environment variable', async () => {
+        const indexes = await seed.getIndexes();
+
+        const ttlIndex = indexes.find(
+            ({ key: { updatedAt } }) => updatedAt === 1
+        );
+
+        ttlIndex!.expireAfterSeconds!.should.equal(1);
+    });
+
+    it('should remove expired instances from the database', async () => {
+        const request = supertest(app.httpServer.callback());
+
+        const testUUID = randomUUID();
+
+        await request
+            .post(`/particle-detector/${testUUID}`)
+            .send({ meta: {} })
+            .expect(201);
+
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        const { body } = await request.get('/').expect(404);
+
+        body.message.should.include('no app instances found');
     });
 });
 

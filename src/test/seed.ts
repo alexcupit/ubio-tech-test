@@ -16,4 +16,8 @@ export class TestSeed {
         }
         await this.collection.deleteMany();
     }
+
+    async getIndexes() {
+        return await this.collection.indexes();
+    }
 }
