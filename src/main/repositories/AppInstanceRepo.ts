@@ -1,16 +1,17 @@
 import { config } from '@ubio/framework';
 import { MongoDb } from '@ubio/framework/modules/mongodb';
 import { dep } from 'mesh-ioc';
-import { ReturnDocument } from 'mongodb';
+import { DeleteResult, ReturnDocument } from 'mongodb';
 
-import { AppInstance } from '../schema/AppInstance.js';
+import { AppInstance, AppInstanceDocument } from '../schema/AppInstance.js';
+import { GroupSummary } from '../schema/GroupSummary.js';
 
 export class AppInstanceRepo {
     @dep() private mongoDb!: MongoDb;
     @config({ default: 10 }) EXPIRY_SECONDS!: number;
 
     protected get collection() {
-        return this.mongoDb.db.collection<AppInstance>('instances');
+        return this.mongoDb.db.collection<AppInstanceDocument>('instances');
     }
 
     async createTTLIndex() {
@@ -32,8 +33,8 @@ export class AppInstanceRepo {
         const query = { id, group };
 
         const update = {
-            $set: { updatedAt: Date.now(), meta },
-            $setOnInsert: { createdAt: Date.now() },
+            $set: { updatedAt: new Date(), meta },
+            $setOnInsert: { createdAt: new Date() },
         };
 
         const options = {
@@ -42,20 +43,33 @@ export class AppInstanceRepo {
             projection: { _id: false },
         };
 
-        return (await this.collection.findOneAndUpdate(
+        const res = (await this.collection.findOneAndUpdate(
             query,
             update,
             options
-        )) as AppInstance;
+        )) as AppInstanceDocument;
+        // cast as AppInstanceDocument as upsert: true means that the result will never be null
+
+        return {
+            ...res,
+            createdAt: res.createdAt.getTime(),
+            updatedAt: res.updatedAt.getTime(),
+        };
     }
 
-    async deleteOne({ id, group }: { id: string; group: string }) {
+    async deleteOne({
+        id,
+        group,
+    }: {
+        id: string;
+        group: string;
+    }): Promise<DeleteResult> {
         return await this.collection.deleteOne({ id, group });
     }
 
-    async aggregate() {
+    async aggregate(): Promise<GroupSummary[]> {
         return await this.collection
-            .aggregate([
+            .aggregate<GroupSummary>([
                 {
                     $group: {
                         _id: '$group',
@@ -69,17 +83,29 @@ export class AppInstanceRepo {
                         _id: false,
                         group: '$_id',
                         instances: true,
-                        createdAt: true,
-                        lastUpdatedAt: true,
+                        createdAt: { $toLong: '$createdAt' },
+                        lastUpdatedAt: { $toLong: '$lastUpdatedAt' },
                     },
                 },
             ])
             .toArray();
     }
 
-    async findMany({ group }: { group: string }) {
+    async findMany({ group }: { group: string }): Promise<AppInstance[]> {
         return await this.collection
-            .find({ group }, { projection: { _id: false } })
+            .aggregate<AppInstance>([
+                { $match: { group } },
+                {
+                    $project: {
+                        _id: false,
+                        id: true,
+                        group: true,
+                        createdAt: { $toLong: '$createdAt' },
+                        updatedAt: { $toLong: '$updatedAt' },
+                        meta: true,
+                    },
+                },
+            ])
             .toArray();
     }
 }

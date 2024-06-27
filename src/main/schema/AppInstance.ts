@@ -8,6 +8,12 @@ export interface AppInstance {
     meta?: { [key: string]: any };
 }
 
+export interface AppInstanceDocument
+    extends Omit<AppInstance, 'createdAt' | 'updatedAt'> {
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 export const AppInstance = new Schema<AppInstance>({
     schema: {
         type: 'object',
