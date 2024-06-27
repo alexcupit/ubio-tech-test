@@ -90,6 +90,7 @@ export class GroupRouter extends Router {
             this.ctx.body = { message: 'no app instances found' };
             return;
         }
+
         return GroupSummaryResponse.decode(allGroups);
     }
 

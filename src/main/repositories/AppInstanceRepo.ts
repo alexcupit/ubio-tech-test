@@ -1,3 +1,4 @@
+import { config } from '@ubio/framework';
 import { MongoDb } from '@ubio/framework/modules/mongodb';
 import { dep } from 'mesh-ioc';
 import { ReturnDocument } from 'mongodb';
@@ -6,9 +7,17 @@ import { AppInstance } from '../schema/AppInstance.js';
 
 export class AppInstanceRepo {
     @dep() private mongoDb!: MongoDb;
+    @config({ default: 10 }) EXPIRY_SECONDS!: number;
 
     protected get collection() {
         return this.mongoDb.db.collection<AppInstance>('instances');
+    }
+
+    async createTTLIndex() {
+        await this.collection.createIndex(
+            { updatedAt: 1 },
+            { expireAfterSeconds: this.EXPIRY_SECONDS }
+        );
     }
 
     async upsertOne({

@@ -8,6 +8,7 @@ import { GroupRouter } from './routes/groups/GroupRouter.js';
 export class App extends Application {
     // Note: application can inject global-scoped components
     @dep() mongoDb!: MongoDb;
+    @dep() appInstanceRepo!: AppInstanceRepo;
 
     override createGlobalScope() {
         const mesh = super.createGlobalScope();
@@ -26,6 +27,7 @@ export class App extends Application {
     override async beforeStart() {
         // await this.mongoDb.client.connect();
         await this.mongoDb.start();
+        await this.appInstanceRepo.createTTLIndex();
 
         // Add other code to execute on application startup
         await this.httpServer.startServer();
