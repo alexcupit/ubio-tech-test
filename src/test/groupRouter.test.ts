@@ -4,7 +4,6 @@ import supertest from 'supertest';
 
 import { App } from '../main/app.js';
 import { AppInstance } from '../main/schema/AppInstance.js';
-import { GroupSummary } from '../main/schema/GroupSummary.js';
 import { TestSeed } from './seed.js';
 
 const app = new App();
@@ -28,10 +27,7 @@ describe('POST /:group/:id', () => {
 
         const testUUID = randomUUID();
 
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
+        await request.post(`/particle-detector/${testUUID}`).expect(201);
     });
 
     it('200: should return a 200 if an existing instance is updated', async () => {
@@ -39,15 +35,9 @@ describe('POST /:group/:id', () => {
 
         const testUUID = randomUUID();
 
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
+        await request.post(`/particle-detector/${testUUID}`).expect(201);
 
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(200);
+        await request.post(`/particle-detector/${testUUID}`).expect(200);
     });
 
     it('201: should return the app instance if db response matches AppInstance schema', async () => {
@@ -57,7 +47,6 @@ describe('POST /:group/:id', () => {
 
         const { body } = await request
             .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
             .expect(201);
 
         body.should.include({
@@ -76,12 +65,11 @@ describe('POST /:group/:id', () => {
 
         const { body: body1 } = await request
             .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
+
             .expect(201);
 
         const { body: body2 } = await request
             .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
             .expect(200);
 
         expect(body1.createdAt).to.equal(body2.createdAt);
@@ -108,7 +96,7 @@ describe('POST /:group/:id', () => {
         expect(body.updatedAt).to.be.a('number');
     });
 
-    it('400: should return a 400 if the request body contains a key other than meta', async () => {
+    it("201: should ignore any other keys in the body that aren't on the meta key", async () => {
         const request = supertest(app.httpServer.callback());
 
         // const testUUID = fakeUuid('e');
@@ -116,10 +104,13 @@ describe('POST /:group/:id', () => {
 
         const { body } = await request
             .post(`/particle-detector/${testUUID}`)
-            .send({ incorrect: { schema: 'for meta data' } })
-            .expect(400);
+            .send({
+                banana: { incorrect: 'schema' },
+                meta: { correct: 'schema' },
+            })
+            .expect(201);
 
-        body.message.should.include("must have required property 'meta'");
+        body.should.not.deep.include({ banana: { incorrect: 'schema' } });
     });
 
     it('400: should return a 400 if the provided id is not a valid uuid', async () => {
@@ -127,7 +118,6 @@ describe('POST /:group/:id', () => {
 
         const { body } = await request
             .post(`/particle-detector/123`)
-            .send({ meta: {} })
             .expect(400);
 
         body.message.should.include('id must match format "uuid"');
@@ -143,10 +133,7 @@ describe('DELETE /:group/:id', () => {
 
         const testUUID = randomUUID();
 
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
+        await request.post(`/particle-detector/${testUUID}`).expect(201);
 
         await request.delete(`/particle-detector/${testUUID}`).expect(204);
     });
@@ -156,10 +143,7 @@ describe('DELETE /:group/:id', () => {
 
         const testUUID = randomUUID();
 
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
+        await request.post(`/particle-detector/${testUUID}`).expect(201);
 
         const { body } = await request
             .delete(`/a-new-group/${testUUID}`)
@@ -193,70 +177,11 @@ describe('DELETE /:group/:id', () => {
     // TODO: check all instances before and after a deletion once new endpoint created
 });
 
-describe('GET /', () => {
-    it('200: should return a 200 if there are groups registered', async () => {
-        const request = supertest(app.httpServer.callback());
-
-        const testUUID = randomUUID();
-
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
-
-        await request.get('/').expect(200);
-    });
-
-    it('404: should return a 404 if there are no groups registered', async () => {
-        const request = supertest(app.httpServer.callback());
-
-        const { body } = await request.get('/').expect(404);
-        body.message.should.include('no app instances found');
-    });
-
-    it('200: should return an array with the number of instances of each group, the createdAt date of the first instance and the lastUpdatedAt date of the last instance', async () => {
-        const request = supertest(app.httpServer.callback());
-
-        // create first instance
-        const testUUID = randomUUID();
-        const {
-            body: { createdAt },
-        } = await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
-
-        // create second instance
-        const testUUID2 = randomUUID();
-        const {
-            body: { updatedAt },
-        } = await request
-            .post(`/particle-detector/${testUUID2}`)
-            .send({ meta: {} })
-            .expect(201);
-
-        const { body } = await request.get('/').expect(200);
-
-        const particleDetectorSummary: GroupSummary = body.find(
-            (groupSummary: GroupSummary) =>
-                groupSummary.group === 'particle-detector'
-        );
-
-        particleDetectorSummary.instances.should.equal(2);
-        particleDetectorSummary.createdAt.should.equal(createdAt);
-        particleDetectorSummary.lastUpdatedAt.should.equal(updatedAt);
-    });
-
-    // TODO: 404 if db query returns an invalid schema
-});
-
 describe('GET /:group', () => {
     it('200: should return a 200 status if there are instances of the given group in the database', async () => {
         const request = supertest(app.httpServer.callback());
 
-        await request
-            .post(`/particle-detector/${randomUUID()}`)
-            .send({ meta: {} });
+        await request.post(`/particle-detector/${randomUUID()}`);
 
         await request.get('/particle-detector').expect(200);
     });
@@ -277,13 +202,10 @@ describe('GET /:group', () => {
         const testUUID = randomUUID();
         const testUUID2 = randomUUID();
 
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
+        await request.post(`/particle-detector/${testUUID}`).expect(201);
         await request
             .post(`/particle-detector/${testUUID2}`)
-            .send({ meta: {} })
+            .send({ banana: { something: 'here' } })
             .expect(201);
 
         const { body } = await request.get('/particle-detector').expect(200);
@@ -295,6 +217,7 @@ describe('GET /:group', () => {
     });
 });
 
+// TODO: (re)move this?
 describe('Removing expired instances', () => {
     it('should have an index on the collection with an expiry time set from an environment variable', async () => {
         const indexes = await seed.getIndexes();
@@ -311,10 +234,7 @@ describe('Removing expired instances', () => {
 
         const testUUID = randomUUID();
 
-        await request
-            .post(`/particle-detector/${testUUID}`)
-            .send({ meta: {} })
-            .expect(201);
+        await request.post(`/particle-detector/${testUUID}`).expect(201);
 
         await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -323,5 +243,3 @@ describe('Removing expired instances', () => {
         body.message.should.include('no app instances found');
     });
 });
-
-// TODO: should return a 404 for any unknown paths

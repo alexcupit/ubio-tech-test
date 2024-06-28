@@ -11,7 +11,6 @@ import { dep } from 'mesh-ioc';
 
 import { AppInstanceRepo } from '../../repositories/AppInstanceRepo.js';
 import { AllAppInstances, AppInstance } from '../../schema/AppInstance.js';
-import { GroupSummaryResponse } from '../../schema/GroupSummary.js';
 
 export class GroupRouter extends Router {
     @dep()
@@ -23,6 +22,7 @@ export class GroupRouter extends Router {
     @Post({
         path: '/{group}/{id}',
         responses: { 201: { schema: AppInstance.schema } },
+        summary: 'Creates a new app instance in a group',
     })
     async postGroupInstance(
         @PathParam('group', { schema: { type: 'string' } })
@@ -33,13 +33,11 @@ export class GroupRouter extends Router {
         @BodyParam('meta', {
             schema: {
                 type: 'object',
-                properties: {
-                    meta: {
-                        type: 'object',
-                        properties: {},
-                    },
-                },
+                properties: {},
+                additionalProperties: true,
+                // optional: true,
             },
+            required: false,
         })
         meta?: { [key: string]: any }
     ) {
@@ -56,7 +54,10 @@ export class GroupRouter extends Router {
         return AppInstance.decode(updatedAppInstance);
     }
 
-    @Delete({ path: '/{group}/{id}' })
+    @Delete({
+        path: '/{group}/{id}',
+        summary: 'Deletes a given app instance from a group',
+    })
     async deleteGroupInstance(
         @PathParam('group', { schema: { type: 'string' } })
         group: string,
@@ -74,24 +75,6 @@ export class GroupRouter extends Router {
         } else {
             this.ctx.status = 204;
         }
-    }
-
-    @Get({
-        path: '/',
-        responses: {
-            200: { schema: GroupSummaryResponse.schema },
-        },
-    })
-    async getAllGroups() {
-        const allGroups = await this.appInstanceRepo.aggregate();
-
-        if (!allGroups.length) {
-            this.ctx.status = 404;
-            this.ctx.body = { message: 'no app instances found' };
-            return;
-        }
-
-        return GroupSummaryResponse.decode(allGroups);
     }
 
     @Get({

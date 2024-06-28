@@ -67,7 +67,7 @@ export class AppInstanceRepo {
         return await this.collection.deleteOne({ id, group });
     }
 
-    async aggregate(): Promise<GroupSummary[]> {
+    async groupAppInstances(): Promise<GroupSummary[]> {
         // prettier-ignore
         return await this.collection
             .aggregate<GroupSummary>([
@@ -88,8 +88,7 @@ export class AppInstanceRepo {
                     lastUpdatedAt: { $toLong: '$lastUpdatedAt' },
                 },
             },
-        ])
-            .toArray();
+        ]).toArray();
     }
 
     async findMany({ group }: { group: string }): Promise<AppInstance[]> {
@@ -107,7 +106,6 @@ export class AppInstanceRepo {
                     meta: true,
                 },
             },
-        ])
-            .toArray();
+        ]).toArray();
     }
 }
