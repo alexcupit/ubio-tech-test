@@ -14,7 +14,7 @@ Prometheus metrics in text-based format
 
 
 ## POST /{group}/{id}
-
+Creates a new app instance in a group
 
 
 ### Body Params
@@ -37,38 +37,13 @@ Prometheus metrics in text-based format
 
 
 ## DELETE /{group}/{id}
-
+Deletes a given app instance from a group
 
 
 ### Body Params
 - id: string
   - format: uuid
 - group: string
-
-
-## GET /
-
-
-
-### Responses
-#### Status: 200
-- contentType: application/json
-- body: array
-  - items: object
-    - group: string
-    - instances: number
-    - createdAt: number
-    - lastUpdatedAt: number
-
-
-## GET /swagger/ui
-
-
-
-### Responses
-#### Status: 200
-- contentType: text/html
-- body: {}
 
 
 ## GET /{group}
@@ -90,3 +65,26 @@ Prometheus metrics in text-based format
     - createdAt: number
     - updatedAt: number
     - meta: object(optional)
+
+
+## GET /
+Shows an array of summry information for each group including the number of instances and the last time an instance in this group was updated
+
+
+### Responses
+#### Status: 200
+- contentType: application/json
+- body: array
+  - items: object
+    - group: string
+    - instances: number
+    - createdAt: number
+    - lastUpdatedAt: number
+
+
+## GET /swagger-ui
+This will redirect to the swagger UI hosted on swaggerhub
+
+
+## GET /swagger-ui
+This will redirect to the swagger UI hosted on swaggerhub

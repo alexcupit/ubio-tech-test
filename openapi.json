@@ -24,7 +24,7 @@
     },
     "/{group}/{id}": {
       "post": {
-        "summary": "",
+        "summary": "Creates a new app instance in a group",
         "requestBody": {
           "required": true,
           "content": {
@@ -110,7 +110,7 @@
         }
       },
       "delete": {
-        "summary": "",
+        "summary": "Deletes a given app instance from a group",
         "parameters": [
           {
             "name": "id",
@@ -135,64 +135,6 @@
           }
         ],
         "responses": {}
-      }
-    },
-    "/": {
-      "get": {
-        "summary": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "group": {
-                        "type": "string"
-                      },
-                      "instances": {
-                        "type": "number"
-                      },
-                      "createdAt": {
-                        "type": "number"
-                      },
-                      "lastUpdatedAt": {
-                        "type": "number"
-                      }
-                    },
-                    "required": [
-                      "group",
-                      "instances",
-                      "createdAt",
-                      "lastUpdatedAt"
-                    ],
-                    "additionalProperties": false
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/swagger/ui": {
-      "get": {
-        "summary": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "text/html": {
-                "schema": {}
-              }
-            }
-          }
-        }
       }
     },
     "/{group}": {
@@ -254,6 +196,55 @@
             }
           }
         }
+      }
+    },
+    "/": {
+      "get": {
+        "summary": "Shows an array of summry information for each group including the number of instances and the last time an instance in this group was updated",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "group": {
+                        "type": "string"
+                      },
+                      "instances": {
+                        "type": "number"
+                      },
+                      "createdAt": {
+                        "type": "number"
+                      },
+                      "lastUpdatedAt": {
+                        "type": "number"
+                      }
+                    },
+                    "required": [
+                      "group",
+                      "instances",
+                      "createdAt",
+                      "lastUpdatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/swagger-ui": {
+      "get": {
+        "summary": "This will redirect to the swagger UI hosted on swaggerhub",
+        "parameters": [],
+        "responses": {}
       }
     }
   }
