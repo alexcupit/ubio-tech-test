@@ -47,7 +47,7 @@ Deletes a given app instance from a group
 
 
 ## GET /{group}
-
+Shows an array of all instances of a given group
 
 
 ### Body Params

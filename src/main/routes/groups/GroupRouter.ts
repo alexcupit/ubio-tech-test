@@ -29,13 +29,11 @@ export class GroupRouter extends Router {
         group: string,
         @PathParam('id', { schema: { type: 'string', format: 'uuid' } })
         id: string,
-        // TODO: make body optional but meta required if body present
         @BodyParam('meta', {
             schema: {
                 type: 'object',
                 properties: {},
                 additionalProperties: true,
-                // optional: true,
             },
             required: false,
         })
@@ -80,6 +78,7 @@ export class GroupRouter extends Router {
     @Get({
         path: '/{group}',
         responses: { 200: { schema: AllAppInstances.schema } },
+        summary: 'Shows an array of all instances of a given group',
     })
     async getAllGroupInstances(
         @PathParam('group', { schema: { type: 'string' } })

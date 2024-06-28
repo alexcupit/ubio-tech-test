@@ -139,7 +139,7 @@
     },
     "/{group}": {
       "get": {
-        "summary": "",
+        "summary": "Shows an array of all instances of a given group",
         "parameters": [
           {
             "name": "group",
