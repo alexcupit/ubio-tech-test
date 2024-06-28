@@ -8,7 +8,7 @@ import { GroupSummary } from '../schema/GroupSummary.js';
 
 export class AppInstanceRepo {
     @dep() private mongoDb!: MongoDb;
-    @config({ default: 10 }) EXPIRY_SECONDS!: number;
+    @config({ default: 3600 }) EXPIRY_SECONDS!: number;
 
     protected get collection() {
         return this.mongoDb.db.collection<AppInstanceDocument>('instances');
@@ -68,6 +68,7 @@ export class AppInstanceRepo {
     }
 
     async groupAppInstances(): Promise<GroupSummary[]> {
+        // due to conflicting indent rules with eslint
         // prettier-ignore
         return await this.collection
             .aggregate<GroupSummary>([
@@ -92,6 +93,7 @@ export class AppInstanceRepo {
     }
 
     async findMany({ group }: { group: string }): Promise<AppInstance[]> {
+        // due to conflicting indent rules with eslint
         // prettier-ignore
         return await this.collection
             .aggregate<AppInstance>([
