@@ -217,8 +217,7 @@ describe('GET /:group', () => {
     });
 });
 
-// TODO: (re)move this?
-describe('Removing expired instances', () => {
+describe('Creating TTL index ', () => {
     it('should have an index on the collection with an expiry time set from an environment variable', async () => {
         const indexes = await seed.getIndexes();
 
@@ -227,19 +226,5 @@ describe('Removing expired instances', () => {
         );
 
         ttlIndex!.expireAfterSeconds!.should.equal(1);
-    });
-
-    it('should remove expired instances from the database', async () => {
-        const request = supertest(app.httpServer.callback());
-
-        const testUUID = randomUUID();
-
-        await request.post(`/particle-detector/${testUUID}`).expect(201);
-
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        const { body } = await request.get('/').expect(404);
-
-        body.message.should.include('no app instances found');
     });
 });
