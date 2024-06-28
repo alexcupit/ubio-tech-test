@@ -29,7 +29,6 @@ export class App extends Application {
     }
 
     override async beforeStart() {
-        // await this.mongoDb.client.connect();
         await this.mongoDb.start();
         await this.appInstanceRepo.createTTLIndex();
 
@@ -41,6 +40,5 @@ export class App extends Application {
         await this.httpServer.stopServer();
         // Add other finalization code
         await this.mongoDb.stop();
-        // this.mongoDb.client.close();
     }
 }

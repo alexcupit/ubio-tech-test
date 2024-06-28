@@ -66,6 +66,4 @@ describe('GET /', () => {
         particleDetectorSummary.createdAt.should.equal(createdAt);
         particleDetectorSummary.lastUpdatedAt.should.equal(updatedAt);
     });
-
-    // TODO: 404 if db query returns an invalid schema
 });

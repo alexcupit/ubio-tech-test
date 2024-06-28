@@ -99,7 +99,6 @@ describe('POST /:group/:id', () => {
     it("201: should ignore any other keys in the body that aren't on the meta key", async () => {
         const request = supertest(app.httpServer.callback());
 
-        // const testUUID = fakeUuid('e');
         const testUUID = randomUUID();
 
         const { body } = await request
@@ -122,9 +121,6 @@ describe('POST /:group/:id', () => {
 
         body.message.should.include('id must match format "uuid"');
     });
-
-    // TODO: throw an error if the db response does not match app instance schema
-    // TODO: meta spreads existing meta from db
 });
 
 describe('DELETE /:group/:id', () => {
@@ -173,8 +169,6 @@ describe('DELETE /:group/:id', () => {
 
         body.message.should.include('id must match format "uuid"');
     });
-
-    // TODO: check all instances before and after a deletion once new endpoint created
 });
 
 describe('GET /:group', () => {
