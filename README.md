@@ -75,3 +75,9 @@ Finally, if using docker the container can be removed by running: `npm run stop-
 Testing runs against a containerised mongo database and will require docker Desktop running.
 
 Environment variables for testing are configured in the script: `npm test`
+
+## CI/CD
+
+A CI pipeline has been configured using GitHub Actions and runs can be seen [here.](https://github.com/alexcupit/ubio-tech-test/actions)
+
+CD is managed through Renders integration with GitHub and new deployments are triggered by pushes to `main`.
