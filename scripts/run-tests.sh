@@ -19,5 +19,5 @@ echo "Running tests sequentially..."
 
 for file in $(find out/test -name '*.test.js'); do
     echo "Running $file"
-    MONGO_URL='mongodb://127.0.0.1:27017/' NODE_ENV=test mocha "$file" --timeout 3000 --exit
+    MONGO_URL='mongodb://127.0.0.1:27017/' NODE_ENV=test EXPIRY_SECONDS=1 mocha "$file" --timeout 3000 --exit
 done

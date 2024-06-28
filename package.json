@@ -12,7 +12,7 @@
         "clean": "rm -rf out",
         "compile": "npm run clean && tsc",
         "start-docker": "docker run -d --name app-instance-test -p 27017:27017 mongo mongod --setParameter ttlMonitorSleepSecs=1",
-        "test": "bash run-tests.sh",
+        "test": "bash scripts/run-tests.sh",
         "stop-docker": "docker stop app-instance-test && docker rm app-instance-test",
         "docs": "npm run docs:openapi && npm run docs:api",
         "docs:openapi": "generate-openapi > openapi.json",
