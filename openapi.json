@@ -200,7 +200,7 @@
     },
     "/": {
       "get": {
-        "summary": "Shows an array of summry information for each group including the number of instances and the last time an instance in this group was updated",
+        "summary": "Shows an array of summary information for each group including the number of instances and the last time an instance in this group was updated",
         "parameters": [],
         "responses": {
           "200": {

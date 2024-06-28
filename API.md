@@ -68,7 +68,7 @@ Shows an array of all instances of a given group
 
 
 ## GET /
-Shows an array of summry information for each group including the number of instances and the last time an instance in this group was updated
+Shows an array of summary information for each group including the number of instances and the last time an instance in this group was updated
 
 
 ### Responses
@@ -80,10 +80,6 @@ Shows an array of summry information for each group including the number of inst
     - instances: number
     - createdAt: number
     - lastUpdatedAt: number
-
-
-## GET /swagger-ui
-This will redirect to the swagger UI hosted on swaggerhub
 
 
 ## GET /swagger-ui
