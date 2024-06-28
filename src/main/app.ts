@@ -4,6 +4,8 @@ import { dep } from 'mesh-ioc';
 
 import { AppInstanceRepo } from './repositories/AppInstanceRepo.js';
 import { GroupRouter } from './routes/groups/GroupRouter.js';
+import { GroupSummaryRouter } from './routes/GroupSummaryRouter.js';
+import { SwaggerRouter } from './routes/SwaggerRouter.js';
 
 export class App extends Application {
     // Note: application can inject global-scoped components
@@ -20,7 +22,9 @@ export class App extends Application {
 
     override createHttpRequestScope() {
         const mesh = super.createHttpRequestScope();
+        mesh.service(SwaggerRouter);
         mesh.service(GroupRouter);
+        mesh.service(GroupSummaryRouter);
         return mesh;
     }
 
