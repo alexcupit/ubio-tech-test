@@ -8,14 +8,12 @@ import { GroupSummaryRouter } from './routes/GroupSummaryRouter.js';
 import { SwaggerRouter } from './routes/SwaggerRouter.js';
 
 export class App extends Application {
-    // Note: application can inject global-scoped components
     @dep() mongoDb!: MongoDb;
     @dep() appInstanceRepo!: AppInstanceRepo;
 
     override createGlobalScope() {
         const mesh = super.createGlobalScope();
         mesh.service(MongoDb);
-
         mesh.service(AppInstanceRepo);
         return mesh;
     }
@@ -31,14 +29,11 @@ export class App extends Application {
     override async beforeStart() {
         await this.mongoDb.start();
         await this.appInstanceRepo.createTTLIndex();
-
-        // Add other code to execute on application startup
         await this.httpServer.startServer();
     }
 
     override async afterStop() {
         await this.httpServer.stopServer();
-        // Add other finalization code
         await this.mongoDb.stop();
     }
 }
