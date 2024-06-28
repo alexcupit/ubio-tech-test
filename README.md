@@ -22,7 +22,7 @@ MONGO_URL=<connection string to mongodb eg 'mongodb://localhost:27017'>
 EXPIRY_SECONDS=<optional but defaults to 3600>
 ```
 
-The additional variables in `.env.example` have been generated using `npx generate-env` and relates to other areas of the [UBIO Node Framework](https://github.com/ubio/node-framework) that can be configured.
+The additional variables in `.env.example` have been generated using `npx generate-env` and relate to other areas of the [UBIO Node Framework](https://github.com/ubio/node-framework) that can be configured.
 
 ### Starting the Server
 
@@ -40,13 +40,13 @@ Finally, if using docker the container can be removed by running: `npm run stop-
 
 An instance of this service has been deployed via Render which is accessible [here.](https://ubio-tech-test.onrender.com/)
 
-The deployed mongo instance is hosted using Atlas and the `MONGO_URL` environment variable is set via Render.
+The deployed mongo instance is hosted using [Mongo Atlas](https://www.mongodb.com/products/platform/atlas-database) and the `MONGO_URL` environment variable is set via Render.
 
-This hosted mongodb can be configured to enable sharding on more premium plans or alternative horizontal scaling options could be considered.
+This hosted mongo database can be configured to enable sharding on more premium plans or alternative horizontal scaling options could be considered.
 
 ### Available Endpoints
 
-An additional endpoint to those specified in [Technical Test.md](<./Technical Test.md>) has been created to display the available endpoints. This new endpoint will redirect to the hosted swagger UI: [https://ubio-tech-test.onrender.com/swagger-ui](https://ubio-tech-test.onrender.com/swagger-ui)
+An additional endpoint to those specified in [Technical Test.md](<./Technical Test.md>) has been created to display the available endpoints. This additional endpoint will redirect to the Swagger UI hosted on Swagger Hub: [https://ubio-tech-test.onrender.com/swagger-ui](https://ubio-tech-test.onrender.com/swagger-ui)
 
 Here are some example cURL commands to interact with the deployed service:
 
@@ -98,8 +98,9 @@ Some implementation decisions that were made:
 -   Default TTL value set to 1hr. It's hard to know without knowing how regular heartbeats might be sent from instances of each group but an hour's absence of interaction felt like a reasonable benchmark that can easily be changed if needed.
 -   I've chosen to host the Swagger UI using their service and created an endpoint that redirects here. Ideally this would be a static page rendered by the server.
 -   I've created three routers to abstract some of the logic for the endpoints:
-    -   GroupRouter: /:group/...
-    -   GroupSummaryRouter: /
-    -   SwaggerRouter: /swagger-ui
+    -   GroupRouter: `/:group/...`
+    -   GroupSummaryRouter: `/`
+    -   SwaggerRouter: `/swagger-ui`
 -   Where data does not exist, I've implemented a 404 response rather than providing an empty array.
--   I've made the body schema for POST /:group/:id optional but this means that providing an incorrect schema (not on a key of `meta`) will be ignored. Therefore users must rely on the code and documentation to
+-   I've made the body schema for POST /:group/:id optional but this means that providing an incorrect schema (not on a key of `meta`) will be ignored. Therefore users must rely on the code and documentation to ensure they use the correct body schema for meta data.
+-   Personally, I use Prettier to auto format on save. There are two sections of code where Prettier has been disabled as the indentation rule conflicts with eslint. If working on a project with more devs, I would most likely look to disable Prettier and remove the config and comments but as a solo project I've decided to use Prettier.
