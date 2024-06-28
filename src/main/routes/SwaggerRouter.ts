@@ -4,6 +4,7 @@ export class SwaggerRouter extends Router {
     @Get({
         path: '/swagger-ui',
         summary: 'This will redirect to the swagger UI hosted on swaggerhub',
+        responses: { 302: {} },
     })
     getSwaggerUi() {
         this.ctx.redirect(

@@ -88,3 +88,9 @@ This will redirect to the swagger UI hosted on swaggerhub
 
 ## GET /swagger-ui
 This will redirect to the swagger UI hosted on swaggerhub
+
+
+### Responses
+#### Status: 302
+- contentType: application/json
+- body: {}
